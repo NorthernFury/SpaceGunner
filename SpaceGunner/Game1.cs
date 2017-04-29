@@ -196,7 +196,6 @@ namespace SpaceGunner
         private void DrawStats()
         {
             int lineWidth = textFont.LineSpacing + 5;
-            int firstLineY = 2;
 
             spriteBatch.DrawString(textFont, "Player score:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 0), Color.White);
             spriteBatch.DrawString(textFont, player.score.ToString(), new Vector2(SCREENAREAX - textFont.MeasureString(player.score.ToString()).X - 2, 4 + lineWidth * 1), Color.White);
@@ -208,7 +207,7 @@ namespace SpaceGunner
             // This should probably be in a function :/
             for (int i = player.lives; i >= 1; i--)
             {
-                spriteBatch.Draw(playerLives, new Vector2(SCREENAREAX - (playerLives.Width * i) - 2, 4 + lineWidth * 5), Color.White);
+                spriteBatch.Draw(playerLives, new Vector2((SCREENAREAX - ((playerLives.Width * Game1.scale + 4) * i)), 4 + lineWidth * 5), null, Color.White, 0f, Vector2.Zero, Game1.scale, SpriteEffects.None, 0f);
             }
         }
     }

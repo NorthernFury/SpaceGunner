@@ -26,7 +26,7 @@ namespace SpaceGunner
         public PlayerWeapons equippedWeapon { get; set; }
         public int lives { get; set; }
         public int highScore { get; set; }
-        public int maxLives = 3;
+        public int maxLives = 2;
 
         private const float P_SPEED = 250f;
 
