@@ -25,6 +25,7 @@ namespace SpaceGunner
         public float originY { get { return position.Y + (height /2); } }
         public PlayerWeapons equippedWeapon { get; set; }
         public int lives { get; set; }
+        public int highScore { get; set; }
         public int maxLives = 3;
 
         private const float P_SPEED = 250f;

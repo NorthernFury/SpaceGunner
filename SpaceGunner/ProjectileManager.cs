@@ -54,6 +54,7 @@ namespace SpaceGunner
                         en.isActive = false;
                         proj.isActive = false;
                         player.score++;
+                        if (player.score > player.highScore) { player.highScore = player.score; }
                     }
                 }
             }

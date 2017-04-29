@@ -118,7 +118,9 @@ namespace SpaceGunner
                         player.ResetPlayer();
                         if (player.lives < 0)
                         {
+                            // TODO: Add a game over screen to display with a resart option
                             gameState = GameState.TitleMenu;
+                            player.highScore = player.score;
                             MediaPlayer.Stop();
                         }
                     }
@@ -193,15 +195,20 @@ namespace SpaceGunner
 
         private void DrawStats()
         {
-            spriteBatch.DrawString(textFont, "Player score:", new Vector2(PLAYAREAX + 10, 2), Color.White);
-            spriteBatch.DrawString(textFont, player.score.ToString(), new Vector2(SCREENAREAX - textFont.MeasureString(player.score.ToString()).X - 2, 17), Color.White);
-            spriteBatch.DrawString(textFont, "Lives:", new Vector2(PLAYAREAX + 10, 35), Color.White);
+            int lineWidth = textFont.LineSpacing + 5;
+            int firstLineY = 2;
+
+            spriteBatch.DrawString(textFont, "Player score:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 0), Color.White);
+            spriteBatch.DrawString(textFont, player.score.ToString(), new Vector2(SCREENAREAX - textFont.MeasureString(player.score.ToString()).X - 2, 4 + lineWidth * 1), Color.White);
+            spriteBatch.DrawString(textFont, "High score:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 2), Color.White);
+            spriteBatch.DrawString(textFont, player.highScore.ToString(), new Vector2(SCREENAREAX - textFont.MeasureString(player.highScore.ToString()).X - 2, 4 + lineWidth * 3), Color.White);
+            spriteBatch.DrawString(textFont, "Lives:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 4), Color.White);
 
             // Draw lives
             // This should probably be in a function :/
             for (int i = player.lives; i >= 1; i--)
             {
-                spriteBatch.Draw(playerLives, new Vector2(SCREENAREAX - (playerLives.Width * i) - 2, 50), Color.White);
+                spriteBatch.Draw(playerLives, new Vector2(SCREENAREAX - (playerLives.Width * i) - 2, 4 + lineWidth * 5), Color.White);
             }
         }
     }
