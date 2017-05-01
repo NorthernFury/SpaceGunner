@@ -38,7 +38,7 @@ namespace SpaceGunner
             scale = Game1.scale;
             equippedWeapon = new PlayerWeapons();
             equippedWeapon.changeWeapon(PlayerWeapons.WeaponType.DualLaser);
-            lives = 3;
+            lives = 5;
             crashed = false;
         }
 
