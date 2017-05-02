@@ -26,6 +26,7 @@ namespace SpaceGunner
         public PlayerWeapons equippedWeapon { get; set; }
         public int lives { get; set; }
         public int highScore { get; set; }
+        public TimeSpan lastFired { get; set; }
         public int maxLives = 2;
 
         private const float P_SPEED = 250f;
@@ -40,6 +41,7 @@ namespace SpaceGunner
             equippedWeapon.changeWeapon(PlayerWeapons.WeaponType.DualLaser);
             lives = 3; // The default at game start is set in NewGame()
             crashed = false;
+            lastFired = TimeSpan.Zero;
         }
 
         public void Update(GameTime gameTime, KeyboardState keyState)
@@ -104,5 +106,19 @@ namespace SpaceGunner
                 crashed = false;
             }
         }
+
+        public bool Collision(Projectile projectile)
+        {
+            if ((position.Y + height > projectile.position.Y) &&
+                (position.Y < projectile.position.Y) &&
+                (position.X < projectile.position.X + projectile.width) &&
+                (position.X + width > projectile.position.X))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }

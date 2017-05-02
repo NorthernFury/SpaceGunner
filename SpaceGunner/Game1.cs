@@ -126,10 +126,13 @@ namespace SpaceGunner
                     }
                     else
                     {
+                        if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+                            projectiles.FireProjectile(gameTime, player);
+                        }
                         starfield.Update(gameTime);
-                        projectiles.Update(gameTime, Keyboard.GetState(), player, enemies.enemies, laser);
-                        enemies.Update(gameTime, player);
+                        enemies.Update(gameTime, player, projectiles);
                         player.Update(gameTime, Keyboard.GetState());
+                        projectiles.Update(gameTime, player, enemies.enemies);
                     }
                     break;
                 default:

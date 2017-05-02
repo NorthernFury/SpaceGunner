@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SpaceGunner
 {
-    class EnemyManager
+    public class EnemyManager
     {
         public List<Enemy> enemies { get; set; }
         public Texture2D texture { get; set; }
@@ -22,19 +22,24 @@ namespace SpaceGunner
             rnd = new Random();
         }
 
-        public void Update(GameTime gameTime, Player player)
+        public void Update(GameTime gameTime, Player player, ProjectileManager projectiles)
         {
+            enemies.RemoveAll(e => e.isActive == false);
+
             if (gameTime.TotalGameTime.Subtract(lastSpawn) > TimeSpan.FromMilliseconds(rnd.Next((int)frequency / 3, (int)frequency)))
             {
                 enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), texture));
                 lastSpawn = gameTime.TotalGameTime;
             }
 
-            enemies.RemoveAll(e => e.isActive == false);
-
             foreach (Enemy en in enemies)
             {
-                en.Update(gameTime);
+                if (gameTime.TotalGameTime > en.nextShot)
+                {
+                    projectiles.FireProjectile(gameTime, en);
+                    en.nextShot = gameTime.TotalGameTime + TimeSpan.FromMilliseconds(1500f);
+                }
+
                 if ((en.position.Y + en.height > player.position.Y) &&
                     (en.position.Y < player.position.Y + player.height) &&
                     (en.position.X < player.position.X + player.width) &&
@@ -45,6 +50,7 @@ namespace SpaceGunner
                     player.crashed = true;
                 }
 
+                en.Update(gameTime);
             }
         }
 

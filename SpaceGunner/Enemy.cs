@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SpaceGunner
 {
-    class Enemy
+    public class Enemy
     {
         public Texture2D texture { get; set; }
         public Vector2 position { get; set; }
@@ -16,10 +16,10 @@ namespace SpaceGunner
         public bool isActive { get; set; }
         public int health { get; set; }
         public Vector2 velocity { get; set; }
+        public TimeSpan nextShot { get; set; }
         public float width { get { return texture.Width * scale; } }
         public float height { get { return texture.Height * scale; } }
-        public Vector2 originX { get { return new Vector2(position.X + (width / 2), position.Y); } }
-        public Vector2 originY { get { return new Vector2(position.X, position.Y + (height / 2)); } }
+        public Vector2 origin { get { return new Vector2(position.X + (width / 2), position.Y + (height / 2)); } }
 
         public Enemy(Vector2 starPos, Texture2D tex)
         {
@@ -29,6 +29,7 @@ namespace SpaceGunner
             texture = tex;
             velocity = new Vector2(0, 150);
             position = starPos;
+            nextShot = TimeSpan.Zero;
         }
 
         public void Update(GameTime gameTime)
@@ -44,6 +45,19 @@ namespace SpaceGunner
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(texture, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+        }
+
+        public bool Collision (Projectile projectile)
+        {
+            if ((position.Y + height > projectile.position.Y) &&
+                (position.Y < projectile.position.Y) &&
+                (position.X < projectile.position.X + projectile.width) &&
+                (position.X + width > projectile.position.X))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

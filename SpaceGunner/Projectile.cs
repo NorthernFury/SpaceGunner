@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SpaceGunner
 {
-    class Projectile
+    public class Projectile
     {
         public Texture2D texture { get; set; }
         public float scale { get; set; }
@@ -32,7 +32,7 @@ namespace SpaceGunner
         {
             position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (position.Y < 0)
+            if (position.Y < -60 || position.Y > Game1.SCREENAREAY)
             {
                 isActive = false;
             }

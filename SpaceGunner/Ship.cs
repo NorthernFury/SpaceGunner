@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SpaceGunner
 {
-    class Ship
+    public class Ship
     {
         public Vector2 position { get; set; }
         public bool active { get; set; }
