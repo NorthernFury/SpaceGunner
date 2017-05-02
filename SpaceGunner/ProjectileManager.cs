@@ -11,14 +11,17 @@ namespace SpaceGunner
 {
     public class ProjectileManager
     {
+        public enum Colors { Red, Blue, Green }
         public List<Projectile> playerProjectiles { get; set; }
         public List<Projectile> enemyProjectiles { get; set; }
         public Texture2D texture { get; set; }
+        public Texture2D[] textures { get; set; }
 
         public ProjectileManager()
         {
             playerProjectiles = new List<Projectile>();
             enemyProjectiles = new List<Projectile>();
+            textures = new Texture2D[sizeof(Colors)];
         }
 
         public void Update(GameTime gameTime, Player player, List<Enemy> enemies)
@@ -75,7 +78,7 @@ namespace SpaceGunner
 
         public void FireProjectile(GameTime gameTime, Enemy enemy)
         {
-            enemyProjectiles.Add(new Projectile(new Vector2(enemy.position.X + (enemy.width /2 ), enemy.position.Y + enemy.height), texture, new Vector2(0, 250f)));
+            enemyProjectiles.Add(new Projectile(new Vector2(enemy.position.X + (enemy.width /2 ), enemy.position.Y + enemy.height), textures[(int)Colors.Red], new Vector2(0, 250f)));
         }
 
         public void FireProjectile(GameTime gameTime, Player player)
@@ -100,7 +103,7 @@ namespace SpaceGunner
             if (gameTime.TotalGameTime.Subtract(player.lastFired) > TimeSpan.FromMilliseconds(player.equippedWeapon.fireRate))
             {
                 //laser.Play();
-                playerProjectiles.Add(new Projectile(new Vector2(player.position.X + (player.width / 2), player.position.Y), texture, player.equippedWeapon.velocity));
+                playerProjectiles.Add(new Projectile(new Vector2(player.position.X + (player.width / 2), player.position.Y), textures[(int)Colors.Blue], player.equippedWeapon.velocity));
                 //projectiles.Add(new Projectile(new Vector2(player.position.X + player.width - 10, player.position.Y), texture, velocity));
                 player.lastFired = gameTime.TotalGameTime;
             }
@@ -111,8 +114,8 @@ namespace SpaceGunner
             if (gameTime.TotalGameTime.Subtract(player.lastFired) > TimeSpan.FromMilliseconds(player.equippedWeapon.fireRate))
             {
                 //laser.Play();
-                playerProjectiles.Add(new Projectile(new Vector2(player.position.X + 5, player.position.Y), texture, player.equippedWeapon.velocity));
-                playerProjectiles.Add(new Projectile(new Vector2(player.position.X + player.width - 5, player.position.Y), texture, player.equippedWeapon.velocity));
+                playerProjectiles.Add(new Projectile(new Vector2(player.position.X + 5, player.position.Y), textures[(int)Colors.Blue], player.equippedWeapon.velocity));
+                playerProjectiles.Add(new Projectile(new Vector2(player.position.X + player.width - 5, player.position.Y), textures[(int)Colors.Blue], player.equippedWeapon.velocity));
                 player.lastFired = gameTime.TotalGameTime;
             }
         }

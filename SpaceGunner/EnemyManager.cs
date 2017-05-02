@@ -37,7 +37,7 @@ namespace SpaceGunner
                 if (gameTime.TotalGameTime > en.nextShot)
                 {
                     projectiles.FireProjectile(gameTime, en);
-                    en.nextShot = gameTime.TotalGameTime + TimeSpan.FromMilliseconds(1500f);
+                    en.nextShot = gameTime.TotalGameTime + TimeSpan.FromMilliseconds(1300f);
                 }
 
                 if ((en.position.Y + en.height > player.position.Y) &&

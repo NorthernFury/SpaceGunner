@@ -29,7 +29,7 @@ namespace SpaceGunner
             texture = tex;
             velocity = new Vector2(0, 150);
             position = starPos;
-            nextShot = TimeSpan.Zero;
+            nextShot = TimeSpan.FromMilliseconds(1000f);
         }
 
         public void Update(GameTime gameTime)
@@ -44,7 +44,7 @@ namespace SpaceGunner
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, Color.Purple, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
         public bool Collision (Projectile projectile)

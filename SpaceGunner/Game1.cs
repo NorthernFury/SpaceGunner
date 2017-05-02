@@ -75,12 +75,18 @@ namespace SpaceGunner
 
             // TODO: use this.Content to load your game content here
             textFont = Content.Load<SpriteFont>(@"Fonts\kenvector_future");
-            projectiles.LoadContent(Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07"));
-            player.LoadContent(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_red"));
-            enemies.LoadContent(Content.Load<Texture2D>(@"Graphics\Enemies\enemyBlue1"));
+            player.LoadContent(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
+            enemies.LoadContent(Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
+
+            // Laser textures
+            projectiles.textures[(int)ProjectileManager.Colors.Red] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07");
+            projectiles.textures[(int)ProjectileManager.Colors.Blue] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07");
+            projectiles.textures[(int)ProjectileManager.Colors.Green] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13");
+
+            // Sounds
             laser = Content.Load<SoundEffect>(@"Sounds\FX\sfx_laser1");
             mainLoop = Content.Load<Song>(@"Sounds\Music\MainLoop");
-            playerLives = Content.Load<Texture2D>(@"Graphics\Player\playerLife1_red");
+            playerLives = Content.Load<Texture2D>(@"Graphics\Player\playerLife1_blue");
             starfield.LoadContent(GraphicsDevice);
         }
 
@@ -165,7 +171,7 @@ namespace SpaceGunner
                     {
                         GraphicsDevice.Clear(Color.Black);
 
-                        spriteBatch.Begin();
+                        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                         starfield.Draw(spriteBatch);
                         enemies.Draw(spriteBatch);

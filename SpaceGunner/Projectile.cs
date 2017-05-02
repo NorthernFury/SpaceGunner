@@ -40,7 +40,7 @@ namespace SpaceGunner
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, position, null, Color.Red, 0f, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, position, null, Color.White, 0f, origin, scale, SpriteEffects.None, 0f);
         }
 
         public void LoadContent(Texture2D tex)
