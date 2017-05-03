@@ -75,7 +75,7 @@ namespace SpaceGunner
 
             // TODO: use this.Content to load your game content here
             textFont = Content.Load<SpriteFont>(@"Fonts\kenvector_future");
-            player.LoadContent(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
+            player.texture = Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue");
             enemies.LoadContent(Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
 
             // Laser textures
@@ -132,12 +132,10 @@ namespace SpaceGunner
                     }
                     else
                     {
-                        if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
-                            projectiles.FireProjectile(gameTime, player);
-                        }
+                        ProcessInput(gameTime);
                         starfield.Update(gameTime);
                         enemies.Update(gameTime, player, projectiles);
-                        player.Update(gameTime, Keyboard.GetState());
+                        player.Update(gameTime);
                         projectiles.Update(gameTime, player, enemies.enemies);
                     }
                     break;
@@ -218,6 +216,16 @@ namespace SpaceGunner
             {
                 spriteBatch.Draw(playerLives, new Vector2((SCREENAREAX - ((playerLives.Width * Game1.scale + 4) * i)), 4 + lineWidth * 5), null, Color.White, 0f, Vector2.Zero, Game1.scale, SpriteEffects.None, 0f);
             }
+        }
+
+        private void ProcessInput(GameTime gameTime)
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                projectiles.FireProjectile(gameTime, player);
+            }
+
+            player.ProcessInput(Keyboard.GetState());
         }
     }
 }

@@ -36,7 +36,7 @@ namespace SpaceGunner
                 {
                     if (en.Collision(proj))
                     {
-                        en.isActive = false;
+                        en.isAlive = false;
                         proj.isActive = false;
                         player.score++;
                         if (player.score > player.highScore) { player.highScore = player.score; }

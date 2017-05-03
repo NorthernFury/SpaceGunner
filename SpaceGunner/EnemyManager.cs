@@ -24,7 +24,7 @@ namespace SpaceGunner
 
         public void Update(GameTime gameTime, Player player, ProjectileManager projectiles)
         {
-            enemies.RemoveAll(e => e.isActive == false);
+            enemies.RemoveAll(e => e.isAlive == false);
 
             if (gameTime.TotalGameTime.Subtract(lastSpawn) > TimeSpan.FromMilliseconds(rnd.Next((int)frequency / 3, (int)frequency)))
             {
@@ -46,7 +46,7 @@ namespace SpaceGunner
                     (en.position.X + en.width > player.position.X))
                 {
                     //player.lives--;
-                    en.isActive = false;
+                    en.isAlive = false;
                     player.crashed = true;
                 }
 
