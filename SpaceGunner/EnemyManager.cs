@@ -2,52 +2,55 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static SpaceGunner.Game1;
 
 namespace SpaceGunner
 {
     public class EnemyManager
     {
         public List<Enemy> enemies { get; set; }
-        public Texture2D texture { get; set; }
-        public float frequency = 3000f;
-        public TimeSpan lastSpawn = TimeSpan.Zero;
-        public Random rnd { get; set; }
+        public Texture2D[] textures { get; set; }
+        public Texture2D explosionTexture { get; set; }
+
+        private float frequency = 3000f;
+        private TimeSpan lastSpawn = TimeSpan.Zero;
+        private Random rnd { get; set; }
 
         public EnemyManager()
         {
             enemies = new List<Enemy>();
             rnd = new Random();
+            textures = new Texture2D[sizeof(Colors)];
         }
 
-        public void Update(GameTime gameTime, Player player, ProjectileManager projectiles)
+        public void Update(GameTime gameTime, Player player, ProjectileManager projectiles, sfxManager sfx)
         {
-            enemies.RemoveAll(e => e.isAlive == false);
+            enemies.RemoveAll(e => e.state == ShipState.Dead);
 
             if (gameTime.TotalGameTime.Subtract(lastSpawn) > TimeSpan.FromMilliseconds(rnd.Next((int)frequency / 3, (int)frequency)))
             {
-                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), texture));
+                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), textures[(int)Colors.Red], Color.Crimson, explosionTexture));
                 lastSpawn = gameTime.TotalGameTime;
             }
 
             foreach (Enemy en in enemies)
             {
-                if (gameTime.TotalGameTime > en.nextShot)
+                if (en.state == ShipState.Active)
                 {
-                    projectiles.FireProjectile(gameTime, en);
-                    en.nextShot = gameTime.TotalGameTime + TimeSpan.FromMilliseconds(1300f);
-                }
+                    if (player.position.X < en.currentOrigin.X && player.position.X + player.width > en.currentOrigin.X)
+                    {
+                        en.equippedWeapon.Fire(gameTime, projectiles, sfx, en, player);
+                    }
 
-                if ((en.position.Y + en.height > player.position.Y) &&
-                    (en.position.Y < player.position.Y + player.height) &&
-                    (en.position.X < player.position.X + player.width) &&
-                    (en.position.X + en.width > player.position.X))
-                {
-                    //player.lives--;
-                    en.isAlive = false;
-                    player.crashed = true;
+                    // check for collision with player ship
+                    if ((en.position.Y + en.height > player.position.Y) &&
+                        (en.position.Y < player.position.Y + player.height) &&
+                        (en.position.X < player.position.X + player.width) &&
+                        (en.position.X + en.width > player.position.X))
+                    {
+                        en.BeginExplosion(sfx);
+                        player.crashed = true;
+                    }
                 }
 
                 en.Update(gameTime);
@@ -60,11 +63,6 @@ namespace SpaceGunner
             {
                 en.Draw(spriteBatch);
             }
-        }
-
-        public void LoadContent(Texture2D tex)
-        {
-            texture = tex;
         }
 
         public void ResetEnemies()

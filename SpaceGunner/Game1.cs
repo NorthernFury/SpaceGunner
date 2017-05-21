@@ -18,12 +18,15 @@ namespace SpaceGunner
         ProjectileManager projectiles;
         EnemyManager enemies;
         SpriteFont textFont;
-        SoundEffect laser;
+        sfxManager soundEffects;
         Song mainLoop;
         Texture2D playerLives;
+        KeyboardState currentKeyState, previousKeyState;
 
         public enum WeaponType { SingleLaser, DualLaser };
         public enum GameState { TitleMenu, GamePlay };
+        public enum ShipState {  Active, Exploding, Dead };
+        public enum Colors { Red, Blue, Green};
 
         public static int PLAYAREAX = 600;
         public static int PLAYAREAY = 900;
@@ -58,6 +61,7 @@ namespace SpaceGunner
             starfield = new Starfield();
             projectiles = new ProjectileManager();
             enemies = new EnemyManager();
+            soundEffects = new sfxManager();
 
             gameState = GameState.TitleMenu;
             
@@ -73,20 +77,22 @@ namespace SpaceGunner
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
             textFont = Content.Load<SpriteFont>(@"Fonts\kenvector_future");
-            player.texture = Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue");
-            enemies.LoadContent(Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
+            player.SetTexture(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
+            enemies.textures[(int)Colors.Red] = Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1");
+            enemies.explosionTexture = Content.Load<Texture2D>(@"Graphics\Particles\explosion-6");
+            playerLives = Content.Load<Texture2D>(@"Graphics\Player\playerLife1_blue");
 
             // Laser textures
-            projectiles.textures[(int)ProjectileManager.Colors.Red] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07");
-            projectiles.textures[(int)ProjectileManager.Colors.Blue] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07");
-            projectiles.textures[(int)ProjectileManager.Colors.Green] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13");
+            projectiles.textures[(int)Colors.Red] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07");
+            projectiles.textures[(int)Colors.Blue] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07");
+            projectiles.textures[(int)Colors.Green] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13");
 
-            // Sounds
-            laser = Content.Load<SoundEffect>(@"Sounds\FX\sfx_laser1");
+            // Sounds & music
+            soundEffects.LoadContent("laser1", Content.Load<SoundEffect>(@"Sounds\FX\sfx_laser1"));
+            soundEffects.LoadContent("enemyexplosion", Content.Load<SoundEffect>(@"Sounds\FX\enemyexplosion"));
+            soundEffects.LoadContent("powerup", Content.Load<SoundEffect>(@"Sounds\FX\powerup"));
             mainLoop = Content.Load<Song>(@"Sounds\Music\MainLoop");
-            playerLives = Content.Load<Texture2D>(@"Graphics\Player\playerLife1_blue");
             starfield.LoadContent(GraphicsDevice);
         }
 
@@ -132,11 +138,11 @@ namespace SpaceGunner
                     }
                     else
                     {
-                        ProcessInput(gameTime);
+                        ProcessInput(gameTime, Keyboard.GetState());
                         starfield.Update(gameTime);
-                        enemies.Update(gameTime, player, projectiles);
+                        enemies.Update(gameTime, player, projectiles, soundEffects);
                         player.Update(gameTime);
-                        projectiles.Update(gameTime, player, enemies.enemies);
+                        projectiles.Update(gameTime, player, enemies, soundEffects);
                     }
                     break;
                 default:
@@ -192,9 +198,11 @@ namespace SpaceGunner
             starfield.ResetField();
             enemies.ResetEnemies();
             player.ResetPlayer();
+            projectiles.ResetProjectiles();
             player.lives = 3;
             player.score = 0;
 #if !DEBUG
+            MediaPlayer.Volume = 0.5f;
             MediaPlayer.Play(mainLoop);
             MediaPlayer.IsRepeating = true;
 #endif
@@ -203,29 +211,75 @@ namespace SpaceGunner
         private void DrawStats()
         {
             int lineWidth = textFont.LineSpacing + 5;
+            int xPadding = PLAYAREAX + 10;
 
-            spriteBatch.DrawString(textFont, "Player score:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 0), Color.White);
+            spriteBatch.DrawString(textFont, "Player score:", new Vector2(xPadding, 4 + lineWidth * 0), Color.White);
             spriteBatch.DrawString(textFont, player.score.ToString(), new Vector2(SCREENAREAX - textFont.MeasureString(player.score.ToString()).X - 2, 4 + lineWidth * 1), Color.White);
-            spriteBatch.DrawString(textFont, "High score:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 2), Color.White);
+            spriteBatch.DrawString(textFont, "High score:", new Vector2(xPadding, 4 + lineWidth * 2), Color.White);
             spriteBatch.DrawString(textFont, player.highScore.ToString(), new Vector2(SCREENAREAX - textFont.MeasureString(player.highScore.ToString()).X - 2, 4 + lineWidth * 3), Color.White);
-            spriteBatch.DrawString(textFont, "Lives:", new Vector2(PLAYAREAX + 10, 4 + lineWidth * 4), Color.White);
+            spriteBatch.DrawString(textFont, "Lives:", new Vector2(xPadding, 4 + lineWidth * 4), Color.White);
 
-            // Draw lives
-            // This should probably be in a function :/
+            // Draw lives indicator
+            // This should probably be in a function?
             for (int i = player.lives; i >= 1; i--)
             {
-                spriteBatch.Draw(playerLives, new Vector2((SCREENAREAX - ((playerLives.Width * Game1.scale + 4) * i)), 4 + lineWidth * 5), null, Color.White, 0f, Vector2.Zero, Game1.scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(playerLives, new Vector2((SCREENAREAX - ((playerLives.Width * scale + 4) * i)), 4 + lineWidth * 5), null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
             }
+
+            spriteBatch.DrawString(textFont, "Weapon:", new Vector2(xPadding, 4 + lineWidth * 6), Color.White);
+            spriteBatch.DrawString(textFont, player.equippedWeapon.name, new Vector2(SCREENAREAX - textFont.MeasureString(player.equippedWeapon.name).X - 2, 4 + lineWidth * 7), Color.White);
         }
 
-        private void ProcessInput(GameTime gameTime)
+        private void ProcessInput(GameTime gameTime, KeyboardState keyState)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            Vector2 direction = new Vector2(0, 0);
+            currentKeyState = keyState;
+
+            if (keyState.IsKeyDown(Keys.Left))
             {
-                projectiles.FireProjectile(gameTime, player);
+                direction.X = -1;
+            }
+            else if (keyState.IsKeyDown(Keys.Right))
+            {
+                direction.X = 1;
             }
 
-            player.ProcessInput(Keyboard.GetState());
+            if (keyState.IsKeyDown(Keys.Up))
+            {
+                direction.Y = -1;
+            }
+            else if (keyState.IsKeyDown(Keys.Down))
+            {
+                direction.Y = 1;
+            }
+
+            player.ChangeDirection(direction);
+
+            if (currentKeyState.IsKeyDown(Keys.Z) && previousKeyState.IsKeyUp(Keys.Z))
+            {
+                // toggle equipped weapons
+                switch (player.equippedWeapon.weapon)
+                {
+                    case Weapons.WeaponType.SingleLaser:
+                        player.equippedWeapon.changeWeapon(Weapons.WeaponType.DualLaser, player);
+                        break;
+                    case Weapons.WeaponType.DualLaser:
+                        player.equippedWeapon.changeWeapon(Weapons.WeaponType.SpreadShot, player);
+                        break;
+                    case Weapons.WeaponType.SpreadShot:
+                        player.equippedWeapon.changeWeapon(Weapons.WeaponType.SingleLaser, player);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (keyState.IsKeyDown(Keys.Space))
+            {
+                player.equippedWeapon.Fire(gameTime, projectiles, soundEffects, player, null);
+            }
+
+            previousKeyState = keyState;
         }
     }
 }

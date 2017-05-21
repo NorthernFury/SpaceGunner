@@ -1,38 +1,77 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static SpaceGunner.Game1;
 
 namespace SpaceGunner
 {
     public class Enemy : Ship
     {
-        public TimeSpan nextShot { get; set; }
+        public ShipState state { get; set; }
+        private AnimatedSprite explosion { get; set; }
+        private Texture2D explosionTexture { get; set; }
 
-        public Enemy(Vector2 starPos, Texture2D tex)
+        public Enemy(Vector2 startPos, Texture2D tex, Color col, Texture2D explosionTex) : base(startPos, tex, col)
         {
-            scale = Game1.scale;
-            health = 100;
-            isAlive = true;
-            texture = tex;
+            //texture = tex;
+            explosionTexture = explosionTex;
             velocity = new Vector2(0, 150);
-            position = starPos;
-            nextShot = TimeSpan.FromMilliseconds(1500f);
+            //position = startPos;
+            lastFired = TimeSpan.Zero;
+            //color = col;
+            equippedWeapon = new Weapons();
+            equippedWeapon.changeWeapon(Weapons.WeaponType.SingleLaser, this);
+            explosion = new AnimatedSprite();
+            state = ShipState.Active;
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
-                //position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (position.Y > Game1.PLAYAREAY)
+            if (state == ShipState.Active)
             {
-                isAlive = false;
+                base.Update(gameTime);
+
+                if (position.Y > PLAYAREAY)
+                {
+                    isAlive = false;
+                    state = ShipState.Dead;
+                }
+            }
+            else if (state == ShipState.Exploding)
+            {
+                if (!explosion.isActive)
+                {
+                    state = ShipState.Dead;
+                }
+                explosion.Update(gameTime);
             }
         }
 
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            if (state == ShipState.Active)
+            {
+                base.Draw(spriteBatch);
+            }
+            else if (state == ShipState.Exploding)
+            {   
+                if (explosion.currentFrame < 4)
+                {
+                    base.Draw(spriteBatch);
+                }
+                explosion.Draw(spriteBatch);
+            }
+        }
+
+        public void BeginExplosion(sfxManager sfx)
+        {
+            if (state != ShipState.Exploding)
+            {
+                state = ShipState.Exploding;
+                explosion.Initialize(explosionTexture, position, 8, 65f, 1.0f, false);
+                sfx.Effect("enemyexplosion").Play();
+            }
+        }
     }
 }

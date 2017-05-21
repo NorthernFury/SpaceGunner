@@ -56,11 +56,13 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AnimatedSprite.cs" />
     <Compile Include="Enemy.cs" />
     <Compile Include="EnemyManager.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="PlayerWeapons.cs" />
+    <Compile Include="sfxManager.cs" />
+    <Compile Include="Weapons.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Projectile.cs" />
     <Compile Include="ProjectileManager.cs" />
