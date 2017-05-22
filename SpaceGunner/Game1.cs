@@ -30,7 +30,7 @@ namespace SpaceGunner
         public static int PLAYAREAY = 900;
         public static int SCREENAREAX = 800;
         public static int SCREENAREAY = PLAYAREAY;
-        public static float scale = 0.5f;
+        public static float scale = 0.6f;
 
         public GameState gameState;
 
