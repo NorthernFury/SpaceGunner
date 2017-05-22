@@ -1,35 +1,34 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using static SpaceGunner.Ship;
 
 namespace SpaceGunner
 {
     public class ProjectileManager
     {
-        public List<Projectile> playerProjectiles { get; set; }
-        public List<Projectile> enemyProjectiles { get; set; }
         public List<Projectile> projectiles { get; set; }
         public Dictionary<string, Texture2D> textures { get; set; }
 
         public ProjectileManager()
         {
-            playerProjectiles = new List<Projectile>();
-            enemyProjectiles = new List<Projectile>();
             projectiles = new List<Projectile>();
             textures = new Dictionary<string, Texture2D>();
         }
 
-        public void Update(GameTime gameTime, Player player)
+        public void Update(GameTime gameTime, Player player, sfxManager sfx)
         {
             foreach (Projectile p in projectiles)
             {
-                // check for collision
-                if (player.Collision(p) && !p.fromPlayer)
+                if (!p.fromPlayer) // Only do a collision check on enemy projectiles
                 {
-                    p.isActive = false;
-                    player.crashed = true;
+                    if (player.Collision(p))
+                    {
+                        p.isActive = false;
+                        player.BeginExplosion(sfx.Effect("explosion"));
+                    }
                 }
-               
+
                 p.Update(gameTime);
             }
 

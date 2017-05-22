@@ -19,9 +19,13 @@ namespace SpaceGunner
         private float elapsed { get; set; }
         private Rectangle sourceRect { get; set; }
 
-        public void Initialize(Texture2D tex, Vector2 pos, int frameCount, float frameInterval, float textureScale, bool looped)
+        public AnimatedSprite(Texture2D textureSheet)
         {
-            sheet = tex;
+            sheet = textureSheet;
+        }
+
+        public void Start(Vector2 pos, int frameCount, float frameInterval, float textureScale, bool looped)
+        {
             position = pos;
             frames = frameCount;
             interval = frameInterval;

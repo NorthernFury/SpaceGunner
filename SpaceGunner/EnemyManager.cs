@@ -46,8 +46,8 @@ namespace SpaceGunner
                     // check for collision with player ship
                     if (en.Collision(player))
                     {
-                        en.BeginExplosion(sfx);
-                        player.crashed = true;
+                        en.BeginExplosion(sfx.Effect("explosion"));
+                        player.BeginExplosion(sfx.Effect("explosion"));
                     }
 
                     // check for collision with a projectile
@@ -55,7 +55,7 @@ namespace SpaceGunner
                     {
                         if (en.Collision(p) && p.fromPlayer)
                         {
-                            en.BeginExplosion(sfx);
+                            en.BeginExplosion(sfx.Effect("explosion"));
                             p.isActive = false;
                             player.score++;
                             if (player.score > player.highScore) { player.highScore = player.score; }

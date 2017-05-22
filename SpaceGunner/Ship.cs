@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
@@ -6,7 +7,7 @@ namespace SpaceGunner
 {
     public class Ship
     {
-        public enum ShipState { Active, Exploding, Dead };
+        public enum ShipState { Active, Exploding, Dead, Invinsible };
 
         public Vector2 position { get; set; }
         public Vector2 velocity { get; set; }
@@ -18,6 +19,7 @@ namespace SpaceGunner
         public Weapons equippedWeapon { get; set; }
         public TimeSpan lastFired { get; set; }
         public ShipState state { get; set; }
+        public AnimatedSprite explosion { get; set; }
 
         private Color color { get; set; }
         private int health { get; set; }
@@ -31,6 +33,7 @@ namespace SpaceGunner
             velocity = new Vector2(0, 0);
             color = Color.White;
             isAlive = true;
+            state = ShipState.Active;
             health = 100;
             scale = Game1.scale;
             isFiring = false;
@@ -42,6 +45,7 @@ namespace SpaceGunner
             velocity = new Vector2(0, 0);
             color = col;
             isAlive = true;
+            state = ShipState.Active;
             health = 100;
             scale = Game1.scale;
             texture = tex;
@@ -50,12 +54,34 @@ namespace SpaceGunner
 
         public virtual void Update(GameTime gameTime)
         {
-            position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (state == ShipState.Active || state == ShipState.Invinsible)
+            {
+                position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            else if (state == ShipState.Exploding)
+            {
+                if (!explosion.isActive)
+                {
+                    state = ShipState.Dead;
+                }
+                explosion.Update(gameTime);
+            }
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, position, null, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            if (state == ShipState.Active || state == ShipState.Invinsible)
+            {
+                spriteBatch.Draw(texture, position, null, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            }
+            else if (state == ShipState.Exploding)
+            {
+                if (explosion.currentFrame < 4)
+                {
+                    spriteBatch.Draw(texture, position, null, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                }
+                explosion.Draw(spriteBatch);
+            }
         }
 
         public bool Collision(Projectile projectile)
@@ -63,7 +89,8 @@ namespace SpaceGunner
             if ((position.Y + height > projectile.position.Y) &&
                 (position.Y < projectile.position.Y) &&
                 (position.X < projectile.position.X + projectile.width) &&
-                (position.X + width > projectile.position.X))
+                (position.X + width > projectile.position.X) &&
+                state == ShipState.Active)
             {
                 return true;
             }
@@ -76,7 +103,8 @@ namespace SpaceGunner
             if ((position.Y + height > ship.position.Y) && 
                 (position.Y < ship.position.Y + ship.height) &&
                 (position.X < ship.position.X + ship.width) &&
-                (position.X + width > ship.position.X))
+                (position.X + width > ship.position.X) &&
+                state == ShipState.Active)
             {
                 return true;
             }
@@ -87,6 +115,16 @@ namespace SpaceGunner
         public void SetTexture(Texture2D tex)
         {
             texture = tex;
+        }
+
+        public void BeginExplosion(SoundEffect sfx)
+        {
+            if (state != ShipState.Exploding)
+            {
+                state = ShipState.Exploding;
+                explosion.Start(position, 8, 65f, 1.0f, false);
+                sfx.Play();
+            }
         }
     }
 }

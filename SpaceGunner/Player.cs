@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using static SpaceGunner.Weapons;
 
@@ -12,14 +13,18 @@ namespace SpaceGunner
         public int highScore { get; set; }
 
         private const float P_SPEED = 250f;
+        private float invincibleTime = 2500f;
+        private float elapsed { get; set; }
 
-        public Player()
+        public Player(Texture2D textureSheet)
         {
             position = new Vector2((Game1.PLAYAREAX / 2) - 20, Game1.PLAYAREAY - 50);
             equippedWeapon = new Weapons(this);
             equippedWeapon.changeWeapon(WeaponType.SingleLaser);
             crashed = false;
             lastFired = TimeSpan.Zero;
+            explosion = new AnimatedSprite(textureSheet);
+            elapsed = 0;
         }
 
         public override void Update(GameTime gameTime)
@@ -30,6 +35,19 @@ namespace SpaceGunner
             if (position.X > Game1.PLAYAREAX - width ) { position = new Vector2(Game1.PLAYAREAX - width, position.Y); }
             if (position.Y < 0) { position = new Vector2(position.X, 0); }
             if (position.Y > Game1.PLAYAREAY - height) { position = new Vector2(position.X, Game1.PLAYAREAY - height); }
+
+            // maintain invinsibility after respawn, then set to active
+            if (state == ShipState.Invinsible)
+            {
+                elapsed += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                if (elapsed > invincibleTime)
+                {
+                    state = ShipState.Active;
+                    elapsed = 0;
+                }
+
+            }
         }
 
         public void ChangeDirection(Vector2 newDir)
@@ -40,10 +58,11 @@ namespace SpaceGunner
         public void ResetPlayer()
         {
             position = new Vector2((Game1.PLAYAREAX / 2) - 20, Game1.PLAYAREAY - 50);
-            if (crashed)
+            if (state == ShipState.Dead)
             {
                 lives--;
-                crashed = false;
+                elapsed = 0;
+                state = ShipState.Invinsible;
             }
         }
     }

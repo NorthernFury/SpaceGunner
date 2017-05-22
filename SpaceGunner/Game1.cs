@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using static SpaceGunner.Ship;
 using static SpaceGunner.Weapons;
 
 namespace SpaceGunner
@@ -55,7 +56,6 @@ namespace SpaceGunner
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            player = new Player();
             starfield = new Starfield();
             projectiles = new ProjectileManager();
             enemies = new EnemyManager();
@@ -75,6 +75,7 @@ namespace SpaceGunner
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            player = new Player(Content.Load<Texture2D>(@"Graphics\Particles\explosion-6"));
             textFont = Content.Load<SpriteFont>(@"Fonts\kenvector_future");
             player.SetTexture(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
             enemies.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
@@ -88,7 +89,7 @@ namespace SpaceGunner
 
             // Sounds & music
             soundEffects.LoadContent("laser1", Content.Load<SoundEffect>(@"Sounds\FX\sfx_laser1"));
-            soundEffects.LoadContent("enemyexplosion", Content.Load<SoundEffect>(@"Sounds\FX\enemyexplosion"));
+            soundEffects.LoadContent("explosion", Content.Load<SoundEffect>(@"Sounds\FX\enemyexplosion"));
             soundEffects.LoadContent("powerup", Content.Load<SoundEffect>(@"Sounds\FX\powerup"));
             mainLoop = Content.Load<Song>(@"Sounds\Music\MainLoop");
             starfield.LoadContent(GraphicsDevice);
@@ -123,7 +124,7 @@ namespace SpaceGunner
                     }
                     break;
                 case GameState.GamePlay:
-                    if (player.crashed)
+                    if (player.state == ShipState.Dead)
                     {
                         player.ResetPlayer();
                         if (player.lives < 0)
@@ -140,7 +141,7 @@ namespace SpaceGunner
                         starfield.Update(gameTime);
                         enemies.Update(gameTime, player, projectiles, soundEffects);
                         player.Update(gameTime);
-                        projectiles.Update(gameTime, player);
+                        projectiles.Update(gameTime, player, soundEffects);
                     }
                     break;
                 default:
