@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using static SpaceGunner.Weapons;
 
 namespace SpaceGunner
 {
@@ -23,10 +24,7 @@ namespace SpaceGunner
         Texture2D playerLives;
         KeyboardState currentKeyState, previousKeyState;
 
-        public enum WeaponType { SingleLaser, DualLaser };
         public enum GameState { TitleMenu, GamePlay };
-        public enum ShipState {  Active, Exploding, Dead };
-        public enum Colors { Red, Blue, Green};
 
         public static int PLAYAREAX = 600;
         public static int PLAYAREAY = 900;
@@ -79,14 +77,14 @@ namespace SpaceGunner
 
             textFont = Content.Load<SpriteFont>(@"Fonts\kenvector_future");
             player.SetTexture(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
-            enemies.textures[(int)Colors.Red] = Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1");
-            enemies.explosionTexture = Content.Load<Texture2D>(@"Graphics\Particles\explosion-6");
+            enemies.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
+            enemies.LoadContent("explosion", Content.Load<Texture2D>(@"Graphics\Particles\explosion-6"));
             playerLives = Content.Load<Texture2D>(@"Graphics\Player\playerLife1_blue");
 
             // Laser textures
-            projectiles.textures[(int)Colors.Red] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07");
-            projectiles.textures[(int)Colors.Blue] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07");
-            projectiles.textures[(int)Colors.Green] = Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13");
+            projectiles.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07"));
+            projectiles.LoadContent("blue", Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07"));
+            projectiles.LoadContent("green", Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13"));
 
             // Sounds & music
             soundEffects.LoadContent("laser1", Content.Load<SoundEffect>(@"Sounds\FX\sfx_laser1"));
@@ -142,7 +140,7 @@ namespace SpaceGunner
                         starfield.Update(gameTime);
                         enemies.Update(gameTime, player, projectiles, soundEffects);
                         player.Update(gameTime);
-                        projectiles.Update(gameTime, player, enemies, soundEffects);
+                        projectiles.Update(gameTime, player);
                     }
                     break;
                 default:
@@ -179,8 +177,8 @@ namespace SpaceGunner
 
                         starfield.Draw(spriteBatch);
                         enemies.Draw(spriteBatch);
-                        projectiles.Draw(spriteBatch);
                         player.Draw(spriteBatch);
+                        projectiles.Draw(spriteBatch);
                         DrawStats();
 
                         spriteBatch.End();
@@ -235,6 +233,11 @@ namespace SpaceGunner
             Vector2 direction = new Vector2(0, 0);
             currentKeyState = keyState;
 
+            if (keyState.IsKeyDown(Keys.Space))
+            {
+                player.equippedWeapon.Fire(gameTime, projectiles, soundEffects.Effect("laser1"), null);
+            }
+
             if (keyState.IsKeyDown(Keys.Left))
             {
                 direction.X = -1;
@@ -260,23 +263,18 @@ namespace SpaceGunner
                 // toggle equipped weapons
                 switch (player.equippedWeapon.weapon)
                 {
-                    case Weapons.WeaponType.SingleLaser:
-                        player.equippedWeapon.changeWeapon(Weapons.WeaponType.DualLaser, player);
+                    case WeaponType.SingleLaser:
+                        player.equippedWeapon.changeWeapon(WeaponType.DualLaser);
                         break;
-                    case Weapons.WeaponType.DualLaser:
-                        player.equippedWeapon.changeWeapon(Weapons.WeaponType.SpreadShot, player);
+                    case WeaponType.DualLaser:
+                        player.equippedWeapon.changeWeapon(WeaponType.SpreadShot);
                         break;
-                    case Weapons.WeaponType.SpreadShot:
-                        player.equippedWeapon.changeWeapon(Weapons.WeaponType.SingleLaser, player);
+                    case WeaponType.SpreadShot:
+                        player.equippedWeapon.changeWeapon(WeaponType.SingleLaser);
                         break;
                     default:
                         break;
                 }
-            }
-
-            if (keyState.IsKeyDown(Keys.Space))
-            {
-                player.equippedWeapon.Fire(gameTime, projectiles, soundEffects, player, null);
             }
 
             previousKeyState = keyState;

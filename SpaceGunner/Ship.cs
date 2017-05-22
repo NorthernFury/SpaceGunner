@@ -6,6 +6,8 @@ namespace SpaceGunner
 {
     public class Ship
     {
+        public enum ShipState { Active, Exploding, Dead };
+
         public Vector2 position { get; set; }
         public Vector2 velocity { get; set; }
         public bool isAlive { get; set; }
@@ -15,6 +17,7 @@ namespace SpaceGunner
         public Vector2 currentOrigin { get { return new Vector2(position.X + (width / 2), position.Y + (height / 2)); } }
         public Weapons equippedWeapon { get; set; }
         public TimeSpan lastFired { get; set; }
+        public ShipState state { get; set; }
 
         private Color color { get; set; }
         private int health { get; set; }
@@ -68,6 +71,19 @@ namespace SpaceGunner
             return false;
         }
 
+        public bool Collision(Ship ship)
+        {
+            if ((position.Y + height > ship.position.Y) && 
+                (position.Y < ship.position.Y + ship.height) &&
+                (position.X < ship.position.X + ship.width) &&
+                (position.X + width > ship.position.X))
+            {
+                return true;
+            }
+
+            return false;
+
+        }
         public void SetTexture(Texture2D tex)
         {
             texture = tex;

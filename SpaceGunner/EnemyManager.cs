@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using static SpaceGunner.Game1;
+using static SpaceGunner.Ship;
 
 namespace SpaceGunner
 {
     public class EnemyManager
     {
         public List<Enemy> enemies { get; set; }
-        public Texture2D[] textures { get; set; }
+        public Dictionary<string, Texture2D> textures { get; set; }
         public Texture2D explosionTexture { get; set; }
 
         private float frequency = 3000f;
@@ -20,16 +21,16 @@ namespace SpaceGunner
         {
             enemies = new List<Enemy>();
             rnd = new Random();
-            textures = new Texture2D[sizeof(Colors)];
+            textures = new Dictionary<string, Texture2D>();
         }
 
-        public void Update(GameTime gameTime, Player player, ProjectileManager projectiles, sfxManager sfx)
+        public void Update(GameTime gameTime, Player player, ProjectileManager pm, sfxManager sfx)
         {
             enemies.RemoveAll(e => e.state == ShipState.Dead);
 
             if (gameTime.TotalGameTime.Subtract(lastSpawn) > TimeSpan.FromMilliseconds(rnd.Next((int)frequency / 3, (int)frequency)))
             {
-                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), textures[(int)Colors.Red], Color.Crimson, explosionTexture));
+                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), textures["red"], Color.Crimson, textures["explosion"]));
                 lastSpawn = gameTime.TotalGameTime;
             }
 
@@ -39,17 +40,26 @@ namespace SpaceGunner
                 {
                     if (player.position.X < en.currentOrigin.X && player.position.X + player.width > en.currentOrigin.X)
                     {
-                        en.equippedWeapon.Fire(gameTime, projectiles, sfx, en, player);
+                        en.equippedWeapon.Fire(gameTime, pm, null, player);
                     }
 
                     // check for collision with player ship
-                    if ((en.position.Y + en.height > player.position.Y) &&
-                        (en.position.Y < player.position.Y + player.height) &&
-                        (en.position.X < player.position.X + player.width) &&
-                        (en.position.X + en.width > player.position.X))
+                    if (en.Collision(player))
                     {
                         en.BeginExplosion(sfx);
                         player.crashed = true;
+                    }
+
+                    // check for collision with a projectile
+                    foreach (Projectile p in pm.projectiles)
+                    {
+                        if (en.Collision(p) && p.fromPlayer)
+                        {
+                            en.BeginExplosion(sfx);
+                            p.isActive = false;
+                            player.score++;
+                            if (player.score > player.highScore) { player.highScore = player.score; }
+                        }
                     }
                 }
 
@@ -68,6 +78,11 @@ namespace SpaceGunner
         public void ResetEnemies()
         {
             enemies.Clear();
+        }
+
+        public void LoadContent(string name, Texture2D texture)
+        {
+            textures.Add(name, texture);
         }
     }
 }

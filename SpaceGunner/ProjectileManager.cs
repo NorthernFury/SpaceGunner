@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using static SpaceGunner.Game1;
 
 namespace SpaceGunner
 {
@@ -11,20 +9,18 @@ namespace SpaceGunner
         public List<Projectile> playerProjectiles { get; set; }
         public List<Projectile> enemyProjectiles { get; set; }
         public List<Projectile> projectiles { get; set; }
-        public Texture2D[] textures { get; set; }
+        public Dictionary<string, Texture2D> textures { get; set; }
 
         public ProjectileManager()
         {
             playerProjectiles = new List<Projectile>();
             enemyProjectiles = new List<Projectile>();
             projectiles = new List<Projectile>();
-            textures = new Texture2D[sizeof(Colors)];
+            textures = new Dictionary<string, Texture2D>();
         }
 
-        public void Update(GameTime gameTime, Player player, EnemyManager enemies, sfxManager sfx)
+        public void Update(GameTime gameTime, Player player)
         {
-            RemoveProjectiles(projectiles);
-
             foreach (Projectile p in projectiles)
             {
                 // check for collision
@@ -34,22 +30,10 @@ namespace SpaceGunner
                     player.crashed = true;
                 }
                
-                foreach (Enemy en in enemies.enemies)
-                {
-                    if (en.state == ShipState.Active)
-                    {
-                        if (en.Collision(p) && p.fromPlayer)
-                        {
-                            en.BeginExplosion(sfx);
-                            p.isActive = false;
-                            player.score++;
-                            if (player.score > player.highScore) { player.highScore = player.score; }
-                        }
-                    }
-                }
-
                 p.Update(gameTime);
             }
+
+            RemoveProjectiles(projectiles);
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -68,6 +52,11 @@ namespace SpaceGunner
         public void ResetProjectiles()
         {
             projectiles.Clear();
+        }
+
+        public void LoadContent(string name, Texture2D texture)
+        {
+            textures.Add(name, texture);
         }
     }
 }

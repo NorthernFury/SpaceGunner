@@ -3,12 +3,12 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using static SpaceGunner.Game1;
+using static SpaceGunner.Weapons;
 
 namespace SpaceGunner
 {
     public class Enemy : Ship
     {
-        public ShipState state { get; set; }
         private AnimatedSprite explosion { get; set; }
         private Texture2D explosionTexture { get; set; }
 
@@ -20,8 +20,8 @@ namespace SpaceGunner
             //position = startPos;
             lastFired = TimeSpan.Zero;
             //color = col;
-            equippedWeapon = new Weapons();
-            equippedWeapon.changeWeapon(Weapons.WeaponType.SingleLaser, this);
+            equippedWeapon = new Weapons(this);
+            equippedWeapon.changeWeapon(WeaponType.SingleLaser);
             explosion = new AnimatedSprite();
             state = ShipState.Active;
         }
@@ -30,13 +30,13 @@ namespace SpaceGunner
         {
             if (state == ShipState.Active)
             {
-                base.Update(gameTime);
-
                 if (position.Y > PLAYAREAY)
                 {
                     isAlive = false;
                     state = ShipState.Dead;
                 }
+
+                base.Update(gameTime);
             }
             else if (state == ShipState.Exploding)
             {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
@@ -19,13 +20,15 @@ namespace SpaceGunner
         }
         private int projectileCount { get; set; }
         private WeaponStats[] stats { get; set; }
+        private Ship parent { get; set; }
 
-        public Weapons()
+        public Weapons(Ship parent)
         {
             stats = new WeaponStats[10];
+            this.parent = parent;
         }
 
-        public void changeWeapon(WeaponType toWeapon, Ship caller)
+        public void changeWeapon(WeaponType toWeapon)
         {
             if (toWeapon == WeaponType.SingleLaser)
             {
@@ -58,8 +61,6 @@ namespace SpaceGunner
                 weapon = toWeapon;
                 name = "Spread Laser";
 
-                // I really want to do this mathematically
-                // CREDIT to Kris S. for making me feel like an idiot and solving this!
                 for (int i = 0; i < projectileCount; i++)
                 {
                     stats[i].velocity = new Vector2((100 * i) - 100, -350);
@@ -68,7 +69,7 @@ namespace SpaceGunner
                 fireRate = 800f;
             }
 
-            if (caller is Enemy)
+            if (parent is Enemy)
             {
                 for (int i = 0; i < projectileCount; i++)
                 {
@@ -78,46 +79,51 @@ namespace SpaceGunner
             }
         }
 
-        public void Fire(GameTime gameTime, ProjectileManager pm, sfxManager sfx, Ship attacker, Ship victim)
+        public void Fire(GameTime gameTime, ProjectileManager pm, SoundEffect sfx, Ship victim)
         {
             bool fromPlayer = true;
 
-            if (gameTime.TotalGameTime.Subtract(attacker.lastFired) > TimeSpan.FromMilliseconds(fireRate))
+            if (gameTime.TotalGameTime.Subtract(parent.lastFired) > TimeSpan.FromMilliseconds(fireRate))
             {
-                attacker.lastFired = gameTime.TotalGameTime;
+                parent.lastFired = gameTime.TotalGameTime;
 
-                if (attacker is Enemy)
+                if (parent is Enemy)
                 {
-                    texture = pm.textures[(int)Game1.Colors.Red];
+                    texture = pm.textures["red"];
+                    // below will fire bullet toward player's current position when entering firing "cone"
                     //stats[0].velocity = new Vector2(victim.currentOrigin.X - attacker.currentOrigin.X, stats[0].velocity.Y);
                     stats[0].velocity = new Vector2(0, stats[0].velocity.Y);
                     fromPlayer = false;
                 }
                 else
                 {
-                    texture = pm.textures[(int)Game1.Colors.Blue];
-                    sfx.Effect("laser1").Play();
+                    texture = pm.textures["blue"];
                 }
 
-                switch (attacker.equippedWeapon.weapon)
+                switch (weapon)
                 {
                     case WeaponType.SingleLaser:
-                        pm.projectiles.Add(new Projectile(attacker.currentOrigin, texture, stats[0].velocity, fromPlayer));
+                        pm.projectiles.Add(new Projectile(parent.currentOrigin, texture, stats[0].velocity, fromPlayer));
                         break;
                     case WeaponType.DualLaser:
                         for (int i = 0; i < projectileCount; i++)
                         {
-                            pm.projectiles.Add(new Projectile(new Vector2(attacker.position.X + (attacker.width * i), attacker.position.Y), texture, stats[i].velocity, fromPlayer));
+                            pm.projectiles.Add(new Projectile(new Vector2(parent.position.X + (parent.width * i), parent.position.Y), texture, stats[i].velocity, fromPlayer));
                         }
                         break;
                     case WeaponType.SpreadShot:
                         for (int i = 0; i < projectileCount; i++)
                         {
-                            pm.projectiles.Add(new Projectile(attacker.currentOrigin, texture, stats[i].velocity, stats[i].rotation, fromPlayer));
+                            pm.projectiles.Add(new Projectile(parent.currentOrigin, texture, stats[i].velocity, stats[i].rotation, fromPlayer));
                         }
                         break;
                     default:
                         break;
+                }
+
+                if (sfx != null)
+                {
+                    sfx.Play();
                 }
             }
         }
