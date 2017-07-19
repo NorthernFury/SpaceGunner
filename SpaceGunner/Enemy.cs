@@ -9,7 +9,9 @@ namespace SpaceGunner
 {
     public class Enemy : Ship
     {
-        public Enemy(Vector2 startPos, Texture2D tex, Color col, Texture2D explosionTex) : base(startPos, tex, col)
+        public float itemDropRate { get; set; }
+
+        public Enemy(Vector2 startPos, Texture2D tex, Color col, Texture2D explosionTex, float dropRate) : base(startPos, tex, col)
         {
             //texture = tex;
             velocity = new Vector2(0, 150);
@@ -19,6 +21,7 @@ namespace SpaceGunner
             equippedWeapon = new Weapons(this);
             equippedWeapon.changeWeapon(WeaponType.SingleLaser);
             explosion = new AnimatedSprite(explosionTex);
+            itemDropRate = dropRate;
         }
 
         public override void Update(GameTime gameTime)

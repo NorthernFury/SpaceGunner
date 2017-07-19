@@ -195,3 +195,15 @@
 /processorParam:Quality=Best
 /build:Sounds/FX/powerup.wav
 
+#begin Graphics/PowerUps/bolt_gold.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Graphics/PowerUps/bolt_gold.png
+

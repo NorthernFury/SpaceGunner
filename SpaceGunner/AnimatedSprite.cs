@@ -24,6 +24,24 @@ namespace SpaceGunner
             sheet = textureSheet;
         }
 
+        public AnimatedSprite(Texture2D textureSheet, int frameCount, float frameInterval, float textureScale, bool looped)
+        {
+            sheet = textureSheet;
+            frames = frameCount;
+            interval = frameInterval;
+            scale = textureScale;
+            isLooping = looped;
+        }
+
+        public void Start(Vector2 pos)
+        {
+            position = pos;
+
+            currentFrame = 0;
+            elapsed = 0;
+            isActive = true;
+        }
+
         public void Start(Vector2 pos, int frameCount, float frameInterval, float textureScale, bool looped)
         {
             position = pos;
@@ -49,10 +67,13 @@ namespace SpaceGunner
 
                     if (currentFrame == frames)
                     {
-                        currentFrame = frames;
                         if (!isLooping)
                         {
                             isActive = false;
+                        }
+                        else
+                        {
+                            currentFrame = 0;
                         }
                     }
 
@@ -68,6 +89,11 @@ namespace SpaceGunner
             {
                 spriteBatch.Draw(sheet, position, sourceRect, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
             }
+        }
+
+        public AnimatedSprite Clone()
+        {
+            return (AnimatedSprite)MemberwiseClone();
         }
     }
 }

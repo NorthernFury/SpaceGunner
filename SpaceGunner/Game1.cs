@@ -24,6 +24,7 @@ namespace SpaceGunner
         Song mainLoop;
         Texture2D playerLives;
         KeyboardState currentKeyState, previousKeyState;
+        LootManager lootManager;
 
         public enum GameState { TitleMenu, GamePlay };
 
@@ -60,6 +61,7 @@ namespace SpaceGunner
             projectiles = new ProjectileManager();
             enemies = new EnemyManager();
             soundEffects = new sfxManager();
+            lootManager = new LootManager();
 
             gameState = GameState.TitleMenu;
             
@@ -86,6 +88,9 @@ namespace SpaceGunner
             projectiles.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07"));
             projectiles.LoadContent("blue", Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07"));
             projectiles.LoadContent("green", Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13"));
+
+            // Fill the loot table
+            lootManager.AddItem(new WeaponPowerUp(Content.Load<Texture2D>(@"Graphics\PowerUps\bolt_gold"), 1, 10, WeaponType.DualLaser));
 
             // Sounds & music
             soundEffects.LoadContent("laser1", Content.Load<SoundEffect>(@"Sounds\FX\sfx_laser1"));
@@ -139,7 +144,8 @@ namespace SpaceGunner
                     {
                         ProcessInput(gameTime, Keyboard.GetState());
                         starfield.Update(gameTime);
-                        enemies.Update(gameTime, player, projectiles, soundEffects);
+                        enemies.Update(gameTime, player, projectiles, soundEffects, lootManager);
+                        lootManager.Update(gameTime, player);
                         player.Update(gameTime);
                         projectiles.Update(gameTime, player, soundEffects);
                     }
@@ -177,6 +183,7 @@ namespace SpaceGunner
                         spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                         starfield.Draw(spriteBatch);
+                        lootManager.Draw(spriteBatch);
                         enemies.Draw(spriteBatch);
                         player.Draw(spriteBatch);
                         projectiles.Draw(spriteBatch);
@@ -200,6 +207,7 @@ namespace SpaceGunner
             projectiles.ResetProjectiles();
             player.lives = 3;
             player.score = 0;
+            player.equippedWeapon.changeWeapon(WeaponType.SingleLaser);
 #if !DEBUG
             MediaPlayer.Volume = 0.5f;
             MediaPlayer.Play(mainLoop);
