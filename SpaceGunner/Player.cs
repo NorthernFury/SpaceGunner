@@ -23,7 +23,7 @@ namespace SpaceGunner
             equippedWeapon.changeWeapon(WeaponType.SingleLaser);
             crashed = false;
             lastFired = TimeSpan.Zero;
-            explosion = new AnimatedSprite(textureSheet);
+            explosion = new AnimatedSprite(textureSheet, 8, 65f, 1.0f, false);
             elapsed = 0;
         }
 

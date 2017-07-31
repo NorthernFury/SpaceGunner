@@ -11,7 +11,7 @@ namespace SpaceGunner
     {
         public float itemDropRate { get; set; }
 
-        public Enemy(Vector2 startPos, Texture2D tex, Color col, Texture2D explosionTex, float dropRate) : base(startPos, tex, col)
+        public Enemy(Vector2 startPos, Texture2D tex, Color col, AnimatedSprite explosionTex, float dropRate) : base(startPos, tex, col)
         {
             //texture = tex;
             velocity = new Vector2(0, 150);
@@ -20,7 +20,7 @@ namespace SpaceGunner
             //color = col;
             equippedWeapon = new Weapons(this);
             equippedWeapon.changeWeapon(WeaponType.SingleLaser);
-            explosion = new AnimatedSprite(explosionTex);
+            explosion = explosionTex;
             itemDropRate = dropRate;
         }
 

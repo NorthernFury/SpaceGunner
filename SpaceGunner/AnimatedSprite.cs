@@ -31,24 +31,12 @@ namespace SpaceGunner
             interval = frameInterval;
             scale = textureScale;
             isLooping = looped;
+            isActive = false;
         }
 
         public void Start(Vector2 pos)
         {
             position = pos;
-
-            currentFrame = 0;
-            elapsed = 0;
-            isActive = true;
-        }
-
-        public void Start(Vector2 pos, int frameCount, float frameInterval, float textureScale, bool looped)
-        {
-            position = pos;
-            frames = frameCount;
-            interval = frameInterval;
-            scale = textureScale;
-            isLooping = looped;
 
             currentFrame = 0;
             elapsed = 0;
@@ -65,7 +53,7 @@ namespace SpaceGunner
                 {
                     currentFrame++;
 
-                    if (currentFrame == frames)
+                    if (currentFrame > frames)
                     {
                         if (!isLooping)
                         {

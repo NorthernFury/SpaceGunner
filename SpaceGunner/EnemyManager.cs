@@ -30,7 +30,8 @@ namespace SpaceGunner
 
             if (gameTime.TotalGameTime.Subtract(lastSpawn) > TimeSpan.FromMilliseconds(rnd.Next((int)frequency / 3, (int)frequency)))
             {
-                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), textures["red"], Color.Crimson, textures["explosion"], 0.25f));
+                AnimatedSprite tExplosion = new AnimatedSprite(textures["explosion"], 8, 65f, 1.0f, false);
+                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), textures["red"], Color.Crimson, tExplosion, 0.25f));
                 lastSpawn = gameTime.TotalGameTime;
             }
 

@@ -122,7 +122,7 @@ namespace SpaceGunner
             if (state != ShipState.Exploding)
             {
                 state = ShipState.Exploding;
-                explosion.Start(position, 8, 65f, 1.0f, false);
+                explosion.Start(position);
                 sfx.Play();
             }
         }
