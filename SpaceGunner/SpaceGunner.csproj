@@ -67,6 +67,7 @@
     <Compile Include="PowerUp.cs" />
     <Compile Include="sfxManager.cs" />
     <Compile Include="SpeedPowerUp.cs" />
+    <Compile Include="TextureManager.cs" />
     <Compile Include="WeaponPowerUp.cs" />
     <Compile Include="Weapons.cs" />
     <Compile Include="Program.cs" />

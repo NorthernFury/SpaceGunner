@@ -11,17 +11,19 @@ namespace SpaceGunner
     {
         public float itemDropRate { get; set; }
 
-        public Enemy(Vector2 startPos, Texture2D tex, Color col, AnimatedSprite explosionTex, float dropRate) : base(startPos, tex, col)
+        public Enemy(Vector2 startPos, string name, TextureManager tm, float dropRate)
         {
-            //texture = tex;
             velocity = new Vector2(0, 150);
-            //position = startPos;
+            position = startPos;
             lastFired = TimeSpan.Zero;
-            //color = col;
-            equippedWeapon = new Weapons(this);
+            equippedWeapon = new Weapons(this, tm);
             equippedWeapon.changeWeapon(WeaponType.SingleLaser);
-            explosion = explosionTex;
+            explosion = tm.animated["ShipExplosion"];
             itemDropRate = dropRate;
+            if (name == "EnemyRed")
+            {
+                SetTexture(tm.texture["EnemyRed"]);
+            }
         }
 
         public override void Update(GameTime gameTime)

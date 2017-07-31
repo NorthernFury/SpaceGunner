@@ -8,12 +8,11 @@ namespace SpaceGunner
     public class ProjectileManager
     {
         public List<Projectile> projectiles { get; set; }
-        public Dictionary<string, Texture2D> textures { get; set; }
+        public Texture2D texture { get; set; }
 
         public ProjectileManager()
         {
             projectiles = new List<Projectile>();
-            textures = new Dictionary<string, Texture2D>();
         }
 
         public void Update(GameTime gameTime, Player player, sfxManager sfx)
@@ -51,11 +50,6 @@ namespace SpaceGunner
         public void ResetProjectiles()
         {
             projectiles.Clear();
-        }
-
-        public void LoadContent(string name, Texture2D texture)
-        {
-            textures.Add(name, texture);
         }
     }
 }

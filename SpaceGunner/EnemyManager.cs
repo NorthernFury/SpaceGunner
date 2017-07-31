@@ -10,8 +10,6 @@ namespace SpaceGunner
     public class EnemyManager
     {
         public List<Enemy> enemies { get; set; }
-        public Dictionary<string, Texture2D> textures { get; set; }
-        public Texture2D explosionTexture { get; set; }
 
         private float frequency = 3000f;
         private TimeSpan lastSpawn = TimeSpan.Zero;
@@ -21,17 +19,15 @@ namespace SpaceGunner
         {
             enemies = new List<Enemy>();
             rnd = new Random();
-            textures = new Dictionary<string, Texture2D>();
         }
 
-        public void Update(GameTime gameTime, Player player, ProjectileManager pm, sfxManager sfx, LootManager loot)
+        public void Update(GameTime gameTime, Player player, ProjectileManager pm, TextureManager tm, sfxManager sfx, LootManager loot)
         {
             enemies.RemoveAll(e => e.state == ShipState.Dead);
 
             if (gameTime.TotalGameTime.Subtract(lastSpawn) > TimeSpan.FromMilliseconds(rnd.Next((int)frequency / 3, (int)frequency)))
             {
-                AnimatedSprite tExplosion = new AnimatedSprite(textures["explosion"], 8, 65f, 1.0f, false);
-                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), textures["red"], Color.Crimson, tExplosion, 0.25f));
+                enemies.Add(new Enemy(new Vector2(rnd.Next(0, 550),-50), "EnemyRed", tm, 0.25f));
                 lastSpawn = gameTime.TotalGameTime;
             }
 
@@ -89,11 +85,6 @@ namespace SpaceGunner
         public void ResetEnemies()
         {
             enemies.Clear();
-        }
-
-        public void LoadContent(string name, Texture2D texture)
-        {
-            textures.Add(name, texture);
         }
     }
 }

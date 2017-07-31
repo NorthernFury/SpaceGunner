@@ -53,7 +53,7 @@ namespace SpaceGunner
                 {
                     currentFrame++;
 
-                    if (currentFrame > frames)
+                    if (currentFrame == frames)
                     {
                         if (!isLooping)
                         {

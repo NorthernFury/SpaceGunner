@@ -10,8 +10,9 @@ namespace SpaceGunner
         public enum WeaponType { SingleLaser, DualLaser, SpreadShot };
         public WeaponType weapon { get; set; }
         public float fireRate { get; set; }
-        public Texture2D texture { get; set; }
+        public Texture2D projectileTexture { get; set; }
         public string name { get; private set; }
+        public TextureManager textureManager { get; set; }
 
         private struct WeaponStats
         {
@@ -22,14 +23,16 @@ namespace SpaceGunner
         private WeaponStats[] stats { get; set; }
         private Ship parent { get; set; }
 
-        public Weapons(Ship parent)
+        public Weapons(Ship parent, TextureManager tm)
         {
             stats = new WeaponStats[10];
+            textureManager = tm;
             this.parent = parent;
         }
 
         public void changeWeapon(WeaponType toWeapon)
         {
+            projectileTexture = textureManager.texture["LaserBlue"];
             if (toWeapon == WeaponType.SingleLaser)
             {
                 projectileCount = 1;
@@ -74,7 +77,7 @@ namespace SpaceGunner
                 for (int i = 0; i < projectileCount; i++)
                 {
                     stats[i].velocity *= -1;
-
+                    projectileTexture = textureManager.texture["LaserRed"];
                 }
             }
         }
@@ -89,32 +92,27 @@ namespace SpaceGunner
 
                 if (parent is Enemy)
                 {
-                    texture = pm.textures["red"];
                     // below will fire bullet toward player's current position when entering firing "cone"
                     //stats[0].velocity = new Vector2(victim.currentOrigin.X - attacker.currentOrigin.X, stats[0].velocity.Y);
                     stats[0].velocity = new Vector2(0, stats[0].velocity.Y);
                     fromPlayer = false;
                 }
-                else
-                {
-                    texture = pm.textures["blue"];
-                }
 
                 switch (weapon)
                 {
                     case WeaponType.SingleLaser:
-                        pm.projectiles.Add(new Projectile(parent.currentOrigin, texture, stats[0].velocity, fromPlayer));
+                        pm.projectiles.Add(new Projectile(parent.currentOrigin, projectileTexture, stats[0].velocity, fromPlayer));
                         break;
                     case WeaponType.DualLaser:
                         for (int i = 0; i < projectileCount; i++)
                         {
-                            pm.projectiles.Add(new Projectile(new Vector2(parent.position.X + (parent.width * i), parent.position.Y), texture, stats[i].velocity, fromPlayer));
+                            pm.projectiles.Add(new Projectile(new Vector2(parent.position.X + (parent.width * i), parent.position.Y), projectileTexture, stats[i].velocity, fromPlayer));
                         }
                         break;
                     case WeaponType.SpreadShot:
                         for (int i = 0; i < projectileCount; i++)
                         {
-                            pm.projectiles.Add(new Projectile(parent.currentOrigin, texture, stats[i].velocity, stats[i].rotation, fromPlayer));
+                            pm.projectiles.Add(new Projectile(parent.currentOrigin, projectileTexture, stats[i].velocity, stats[i].rotation, fromPlayer));
                         }
                         break;
                     default:

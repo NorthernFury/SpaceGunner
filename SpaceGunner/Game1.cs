@@ -25,6 +25,7 @@ namespace SpaceGunner
         Texture2D playerLives;
         KeyboardState currentKeyState, previousKeyState;
         LootManager lootManager;
+        TextureManager textureManager;
 
         public enum GameState { TitleMenu, GamePlay };
 
@@ -57,6 +58,7 @@ namespace SpaceGunner
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            textureManager = new TextureManager();
             starfield = new Starfield();
             projectiles = new ProjectileManager();
             enemies = new EnemyManager();
@@ -77,17 +79,37 @@ namespace SpaceGunner
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            player = new Player(Content.Load<Texture2D>(@"Graphics\Particles\explosion-6"));
+            // load player texture
+            textureManager.AddTexture("PlayerShip", Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
+
+            // load projectile textures
+            textureManager.AddTexture("LaserRed", Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07"));
+            textureManager.AddTexture("LaserBlue", Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07"));
+            textureManager.AddTexture("LaserGreen", Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13"));
+
+            // load enemy textures
+            textureManager.AddTexture("EnemyRed", Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
+
+            // load explosion textures
+            textureManager.AddSprite("ShipExplosion", new AnimatedSprite(
+                Content.Load<Texture2D>(@"Graphics\Particles\explosion-6"),
+                8,
+                65f,
+                1.0f,
+                false));
+
+            player = new Player(textureManager);
+
             textFont = Content.Load<SpriteFont>(@"Fonts\kenvector_future");
-            player.SetTexture(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
-            enemies.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
-            enemies.LoadContent("explosion", Content.Load<Texture2D>(@"Graphics\Particles\explosion-6"));
+            //player.SetTexture(Content.Load<Texture2D>(@"Graphics\Player\playerShip1_blue"));
+            //enemies.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Enemies\enemyRed1"));
+            //enemies.LoadContent("explosion", Content.Load<Texture2D>(@"Graphics\Particles\explosion-6"));
             playerLives = Content.Load<Texture2D>(@"Graphics\Player\playerLife1_blue");
 
             // Laser textures
-            projectiles.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07"));
-            projectiles.LoadContent("blue", Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07"));
-            projectiles.LoadContent("green", Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13"));
+            //projectiles.LoadContent("red", Content.Load<Texture2D>(@"Graphics\Projectiles\laserRed07"));
+            //projectiles.LoadContent("blue", Content.Load<Texture2D>(@"Graphics\Projectiles\laserBlue07"));
+            //projectiles.LoadContent("green", Content.Load<Texture2D>(@"Graphics\Projectiles\laserGreen13"));
 
             // Fill the loot table
             lootManager.AddItem(new WeaponPowerUp(Content.Load<Texture2D>(@"Graphics\PowerUps\bolt_gold"), 1, 10, WeaponType.DualLaser));
@@ -144,7 +166,7 @@ namespace SpaceGunner
                     {
                         ProcessInput(gameTime, Keyboard.GetState());
                         starfield.Update(gameTime);
-                        enemies.Update(gameTime, player, projectiles, soundEffects, lootManager);
+                        enemies.Update(gameTime, player, projectiles, textureManager, soundEffects, lootManager);
                         lootManager.Update(gameTime, player);
                         player.Update(gameTime);
                         projectiles.Update(gameTime, player, soundEffects);

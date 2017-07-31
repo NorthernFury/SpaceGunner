@@ -16,15 +16,16 @@ namespace SpaceGunner
         private float invincibleTime = 2500f;
         private float elapsed { get; set; }
 
-        public Player(Texture2D textureSheet)
+        public Player(TextureManager tm)
         {
             position = new Vector2((Game1.PLAYAREAX / 2) - 20, Game1.PLAYAREAY - 50);
-            equippedWeapon = new Weapons(this);
+            equippedWeapon = new Weapons(this, tm);
             equippedWeapon.changeWeapon(WeaponType.SingleLaser);
             crashed = false;
             lastFired = TimeSpan.Zero;
-            explosion = new AnimatedSprite(textureSheet, 8, 65f, 1.0f, false);
+            explosion = tm.animated["ShipExplosion"];
             elapsed = 0;
+            SetTexture(tm.texture["PlayerShip"]);
         }
 
         public override void Update(GameTime gameTime)
